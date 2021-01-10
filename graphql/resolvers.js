@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const { UserInputError } = require('apollo-server');
+const { UserInputError, AuthenticationError } = require('apollo-server');
 const { User } = require('../models');
 
 module.exports = {
@@ -10,6 +10,32 @@ module.exports = {
         return users;
       } catch (e) {
         console.log(e);
+      }
+    },
+    login: async (_, args) => {
+      const { username, password } = args;
+      let errors = {};
+      try {
+        const user = await User.findOne({
+          where: { username },
+        });
+
+        if (!user) {
+          errors.username = 'user not found';
+          throw new UserInputError('user not found', { errors });
+        }
+
+        const correctPassword = await bcrypt.compare(password, user.password);
+
+        if (!correctPassword) {
+          errors.password = 'password is incorrect';
+          throw new AuthenticationError('password is incorrect', { errors });
+        }
+
+        return user;
+      } catch (err) {
+        console.log(err);
+        throw err;
       }
     },
   },
