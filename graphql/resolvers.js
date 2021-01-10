@@ -1,21 +1,49 @@
 const bcrypt = require('bcryptjs');
 const { UserInputError, AuthenticationError } = require('apollo-server');
+const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize');
+
 const { User } = require('../models');
+const { JWT_SECRET } = require('../config/env.json');
 
 module.exports = {
   Query: {
-    getUsers: async () => {
+    getUsers: async (_, __, context) => {
       try {
-        const users = await User.findAll();
+        let user;
+        if (context.req && context.req.headers.authorization) {
+          const token = context.req.headers.authorization.split('Bearer ')[1];
+
+          jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
+            if (err) {
+              throw new AuthenticationError('Unauthenticated');
+            }
+            user = decodedToken;
+
+            console.log(user);
+          });
+        }
+        const users = await User.findAll({
+          where: { username: { [Op.ne]: user.username } },
+        });
         return users;
-      } catch (e) {
-        console.log(e);
+      } catch (err) {
+        console.log(err);
+        throw err;
       }
     },
     login: async (_, args) => {
       const { username, password } = args;
       let errors = {};
       try {
+        if (username.trim() === '')
+          errors.username = 'username must not be empty';
+        if (password === '') errors.password = 'password must not be empty';
+
+        if (Object.keys(errors).length > 0) {
+          throw new UserInputError('bad input', { errors });
+        }
+
         const user = await User.findOne({
           where: { username },
         });
@@ -32,7 +60,15 @@ module.exports = {
           throw new AuthenticationError('password is incorrect', { errors });
         }
 
-        return user;
+        const token = jwt.sign({ username }, JWT_SECRET, {
+          expiresIn: '1h',
+        });
+
+        return {
+          ...user.toJSON(),
+          createdAt: user.createdAt.toISOString(),
+          token,
+        };
       } catch (err) {
         console.log(err);
         throw err;
