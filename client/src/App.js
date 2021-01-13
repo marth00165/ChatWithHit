@@ -7,7 +7,7 @@ import ApolloProvider from './ApolloProvider';
 import './App.scss';
 
 import Home from './pages/Home';
-import Register from './pages/Register1';
+import Register from './pages/Register';
 import Login from './pages/Login';
 
 function App() {
