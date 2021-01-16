@@ -16,7 +16,7 @@ const LOGIN_USER = gql`
   }
 `;
 
-export default function Register(props) {
+const Login = (props) => {
   const [variables, setVariables] = useState({
     username: '',
     password: '',
@@ -29,7 +29,7 @@ export default function Register(props) {
     onError: (err) => setErrors(err.graphQLErrors[0].extensions.errors),
     onCompleted(data) {
       dispatch({ type: 'LOGIN', payload: data.login });
-      props.history.push('/');
+      window.location.href = '/';
     },
   });
 
@@ -83,4 +83,6 @@ export default function Register(props) {
       </Col>
     </Row>
   );
-}
+};
+
+export default Login;
