@@ -21,7 +21,7 @@ const Message = ({ message }) => {
       transition={false}
     >
       <div
-        className={classNames('d-flex my-3', {
+        className={classNames('d-flex my-1', {
           'ml-auto': sent,
           'mr-auto': recieved,
         })}
