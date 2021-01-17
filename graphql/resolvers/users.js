@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 
 const { User, Message } = require('../../models');
-const { JWT_SECRET } = require('../../config/env.json');
+const JWT_SECRET = process.env.JWT_SECRET;
 
 module.exports = {
   Query: {
