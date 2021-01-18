@@ -104,8 +104,10 @@ const Home = ({ history }) => {
         <Button variant="link" onClick={logout}>
           Logout
         </Button>
+        {/* Add Profile Modal */}
       </Row>
       <Row className="bg-white">
+        {/* Move To Own Component Called Messenger*/}
         <Users />
         <Messages />
       </Row>
